@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cube Solver</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="favicon.webp" />
+
+</head>
+<body>
+  <div class="container">
+    <h1>Rubik's Cube Solver</h1>
+
+    <div class="controls">
+      <button id="generateBtn">Load Scrambles</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+
+    <div class="scramble-selector" id="scrambleSelector" style="display: none;">
+      <h3>Select a Scramble:</h3>
+      <div class="scramble-buttons" id="scrambleButtons"></div>
+    </div>
+
+    <div class="cube-container">
+      <div class="cube" id="cube"></div>
+    </div>
+
+    <div class="move-controls">
+      <button id="prevBtn" disabled>Previous</button>
+      <button id="nextBtn" disabled>Next</button>
+    </div>
+
+    <div class="info">
+      <div id="status">Click "Load Scrambles" to start</div>
+      <div id="moveInfo"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
