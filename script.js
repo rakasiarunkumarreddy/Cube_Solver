@@ -1,9 +1,11 @@
+// Class representing the Rubik's Cube logic
 class RubiksCube {
   constructor() {
-    this.reset();
-    this.colors = ["white", "yellow", "red", "orange", "blue", "green"];
+    this.reset(); // Initialize cube faces
+    this.colors = ["white", "yellow", "red", "orange", "blue", "green"]; // Face colors
   }
 
+  // Reset the cube to solved state
   reset() {
     this.faces = {
       top: Array(9).fill(0),
@@ -15,14 +17,17 @@ class RubiksCube {
     };
   }
 
+  // Save cube state (for step-by-step tracking)
   saveState() {
     return JSON.parse(JSON.stringify(this.faces));
   }
 
+  // Restore cube to a previously saved state
   restoreState(state) {
     this.faces = JSON.parse(JSON.stringify(state));
   }
 
+  // Rotate a 3x3 face clockwise
   rotateFace(face) {
     const f = this.faces[face];
     const t = [...f];
@@ -31,6 +36,7 @@ class RubiksCube {
     f[6] = t[8]; f[7] = t[5]; f[8] = t[2];
   }
 
+  // Move functions: Rotate face and adjacent edges
   R() {
     this.rotateFace("right");
     const t = [this.faces.top[2], this.faces.top[5], this.faces.top[8]];
@@ -49,6 +55,7 @@ class RubiksCube {
   }
 
   RPrime() { this.R(); this.R(); this.R(); }
+
   L() {
     this.rotateFace("left");
     const t = [this.faces.top[0], this.faces.top[3], this.faces.top[6]];
@@ -67,6 +74,7 @@ class RubiksCube {
   }
 
   LPrime() { this.L(); this.L(); this.L(); }
+
   U() {
     this.rotateFace("top");
     const t = this.faces.front.slice(0, 3);
@@ -77,6 +85,7 @@ class RubiksCube {
   }
 
   UPrime() { this.U(); this.U(); this.U(); }
+
   D() {
     this.rotateFace("bottom");
     const t = this.faces.front.slice(6);
@@ -87,6 +96,7 @@ class RubiksCube {
   }
 
   DPrime() { this.D(); this.D(); this.D(); }
+
   F() {
     this.rotateFace("front");
     const t = [this.faces.top[6], this.faces.top[7], this.faces.top[8]];
@@ -105,6 +115,7 @@ class RubiksCube {
   }
 
   FPrime() { this.F(); this.F(); this.F(); }
+
   B() {
     this.rotateFace("back");
     const t = [this.faces.top[0], this.faces.top[1], this.faces.top[2]];
@@ -124,6 +135,7 @@ class RubiksCube {
 
   BPrime() { this.B(); this.B(); this.B(); }
 
+  // Maps moves to their function
   moveMap = {
     "R": this.R.bind(this), "R'": this.RPrime.bind(this),
     "L": this.L.bind(this), "L'": this.LPrime.bind(this),
@@ -133,22 +145,28 @@ class RubiksCube {
     "B": this.B.bind(this), "B'": this.BPrime.bind(this),
   };
 
+  // Execute a move on the cube
   executeMove(move) {
     this.moveMap[move]();
   }
 
+  // Get reverse of a move (for solution generation)
   reverseMove(move) {
     return move.includes("'") ? move.replace("'", "") : move + "'";
   }
 
+  // Given a scramble, return the reversed moves (naive solver)
   getSolution(scramble) {
     return scramble.slice().reverse().map(this.reverseMove);
   }
 }
 
+// Class to handle UI rendering and interaction
 class CubeUI {
   constructor() {
     this.cube = new RubiksCube();
+
+    // Predefined scrambles
     this.scrambles = [
       ["R", "U", "R'", "U'"], // Easy
       ["L'", "U'", "L", "U", "F", "U", "F'"], // Medium
@@ -158,11 +176,13 @@ class CubeUI {
     this.currentScrambleIndex = -1;
     this.currentMoveIndex = -1;
     this.solutionStates = [];
-    this.initDOM();
-    this.bindEvents();
-    this.renderCube();
+
+    this.initDOM();     // Cache HTML elements
+    this.bindEvents();  // Attach event listeners
+    this.renderCube();  // Initial render
   }
 
+  // Cache DOM elements
   initDOM() {
     this.cubeEl = document.getElementById("cube");
     this.loadBtn = document.getElementById("generateBtn");
@@ -175,6 +195,7 @@ class CubeUI {
     this.scrambleSelector = document.getElementById("scrambleSelector");
   }
 
+  // Attach event listeners to buttons
   bindEvents() {
     this.loadBtn.onclick = () => this.loadScrambles();
     this.resetBtn.onclick = () => this.reset();
@@ -182,6 +203,7 @@ class CubeUI {
     this.nextBtn.onclick = () => this.showMove(1);
   }
 
+  // Render cube faces on screen using 2D layout
   renderCube() {
     const layout = [
       ["empty", "empty", "empty", "top", "top", "top", "empty", "empty", "empty", "empty", "empty", "empty"],
@@ -210,6 +232,7 @@ class CubeUI {
     }
   }
 
+  // Load scramble buttons
   loadScrambles() {
     this.scrambleButtons.innerHTML = "";
     this.scrambleNames.forEach((name, i) => {
@@ -222,6 +245,7 @@ class CubeUI {
     this.scrambleSelector.style.display = "block";
   }
 
+  // Apply a scramble and compute solution
   selectScramble(i) {
     this.cube.reset();
     this.scrambleIndex = i;
@@ -242,6 +266,7 @@ class CubeUI {
     this.showMove(0);
   }
 
+  // Show a specific move in the solution
   showMove(direction) {
     if (typeof direction === "number") this.currentMoveIndex += direction;
     this.currentMoveIndex = Math.max(0, Math.min(this.solutionStates.length - 1, this.currentMoveIndex));
@@ -251,6 +276,7 @@ class CubeUI {
     this.updateInfo();
   }
 
+  // Update move information in UI
   updateInfo() {
     const moveText = this.currentMoveIndex === 0 ? "Start" :
       this.solution[this.currentMoveIndex - 1];
@@ -267,6 +293,7 @@ class CubeUI {
     this.nextBtn.disabled = this.currentMoveIndex >= this.solution.length;
   }
 
+  // Reset everything to initial state
   reset() {
     this.cube.reset();
     this.scrambleIndex = -1;
@@ -278,4 +305,5 @@ class CubeUI {
   }
 }
 
+// Initialize UI when document is ready
 document.addEventListener("DOMContentLoaded", () => new CubeUI());
